@@ -390,6 +390,46 @@ body {
   color: white;
 }
 
+/* Button Group Styling */
+.buttons.is-grouped {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.buttons.is-grouped .button {
+  margin-bottom: 0;
+}
+
+.buttons.is-grouped .button:not(:last-child) {
+  margin-right: 0;
+}
+
+/* Fullscreen Button Styling */
+.button.is-outlined {
+  border-width: 1px;
+  background-color: transparent;
+}
+
+.button.is-danger.is-outlined {
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.button.is-danger.is-outlined:hover {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.button.is-success.is-outlined {
+  color: #27ae60;
+  border-color: #27ae60;
+}
+
+.button.is-success.is-outlined:hover {
+  background-color: #27ae60;
+  color: white;
+}
+
 .demo-controls-container .select {
   position: relative;
 }

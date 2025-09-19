@@ -86,58 +86,60 @@ function initializeBoxAugmentationDemo() {
     let demoState = {
         currentPose: 'original',
         currentSize: 'original',
-        isFullscreen: false
+        isFullscreen: false,
+        fullscreenType: null,
+        fullscreenContainer: null
     };
 
     // Interactive demo configuration with correct file mappings
     const poseConfigs = {
         original: {
             html: 'sub3_largebox_003_original.html',
-            title: 'Original Box Pose',
-            description: 'Interactive 3D visualization with original box placement'
+            title: 'Original Object Pose',
+            description: 'Interactive 3D visualization with original object placement'
         },
         rot45cw: {
             html: 'sub3_largebox_003_rot_0.html',
             title: 'Rotated 45° Clockwise',
-            description: 'Interactive 3D visualization with box rotated 45 degrees clockwise'
+            description: 'Interactive 3D visualization with object rotated 45 degrees clockwise'
         },
         rot45ccw: {
             html: 'sub3_largebox_003_rot_1.html',
             title: 'Rotated 45° Counter-Clockwise',
-            description: 'Interactive 3D visualization with box rotated 45 degrees counter-clockwise'
+            description: 'Interactive 3D visualization with object rotated 45 degrees counter-clockwise'
         },
         translate_front: {
             html: 'sub3_largebox_003_trans_0.html',
             title: 'Translated Forward',
-            description: 'Interactive 3D visualization with box moved forward'
+            description: 'Interactive 3D visualization with object moved forward'
         },
         translate_left: {
             html: 'sub3_largebox_003_trans_1.html',
             title: 'Translated Left',
-            description: 'Interactive 3D visualization with box moved to the left'
+            description: 'Interactive 3D visualization with object moved to the left'
         },
         translate_right: {
             html: 'sub3_largebox_003_trans_2.html',
             title: 'Translated Right',
-            description: 'Interactive 3D visualization with box moved to the right'
+            description: 'Interactive 3D visualization with object moved to the right'
         }
     };
 
     const sizeConfigs = {
         original: {
             html: 'sub3_largebox_003_original.html',
-            title: 'Original Box Size',
-            description: 'Interactive 3D visualization with original box size'
+            title: 'Original Object Size',
+            description: 'Interactive 3D visualization with original object size'
         },
         small: {
             html: 'sub3_largebox_003_small.html',
-            title: 'Small Box Size',
-            description: 'Interactive 3D visualization with smaller box'
+            title: 'Small Object Size',
+            description: 'Interactive 3D visualization with smaller object'
         },
         large: {
             html: 'sub3_largebox_003_large.html',
-            title: 'Large Box Size',
-            description: 'Interactive 3D visualization with larger box'
+            title: 'Large Object Size',
+            description: 'Interactive 3D visualization with larger object'
         }
     };
 
@@ -153,6 +155,8 @@ function initializeBoxAugmentationDemo() {
     const poseDescription = document.getElementById('pose-description');
     const sizeDescription = document.getElementById('size-description');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const fullscreenPoseBtn = document.getElementById('fullscreen-pose-btn');
+    const fullscreenSizeBtn = document.getElementById('fullscreen-size-btn');
     const sizeSelect = document.getElementById('size-select');
     const loadPoseDemoBtn = document.getElementById('load-pose-demo-btn');
     const loadSizeDemoBtn = document.getElementById('load-size-demo-btn');
@@ -178,6 +182,12 @@ function initializeBoxAugmentationDemo() {
     loadSizeDemoBtn.addEventListener('click', loadSizeDemo);
     if (fullscreenBtn) {
         fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+    if (fullscreenPoseBtn) {
+        fullscreenPoseBtn.addEventListener('click', () => toggleFullscreen('pose'));
+    }
+    if (fullscreenSizeBtn) {
+        fullscreenSizeBtn.addEventListener('click', () => toggleFullscreen('size'));
     }
 
     // Add click listeners to pose options
@@ -366,49 +376,151 @@ function initializeBoxAugmentationDemo() {
         }, 150);
     }
 
-    function toggleFullscreen() {
-        const demoContainers = document.querySelectorAll('.demo-display-container');
+    function toggleFullscreen(demoType = 'both') {
+        const targetIframe = demoType === 'pose' ? poseIframe : 
+                           demoType === 'size' ? sizeIframe : null;
         
         if (!demoState.isFullscreen) {
-            // Enter fullscreen for both containers
-            demoContainers.forEach(container => {
-                if (container.requestFullscreen) {
-                    container.requestFullscreen();
-                } else if (container.webkitRequestFullscreen) {
-                    container.webkitRequestFullscreen();
-                } else if (container.msRequestFullscreen) {
-                    container.msRequestFullscreen();
+            // Enter fullscreen - target only the iframe
+            if (targetIframe) {
+                // Create a fullscreen container for the iframe
+                const fullscreenContainer = document.createElement('div');
+                fullscreenContainer.id = 'fullscreen-iframe-container';
+                fullscreenContainer.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: #000;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+                
+                // Clone the iframe for fullscreen
+                const fullscreenIframe = targetIframe.cloneNode(true);
+                fullscreenIframe.style.cssText = `
+                    width: 100vw;
+                    height: 100vh;
+                    border: none;
+                    border-radius: 0;
+                `;
+                
+                // Add close button
+                const closeButton = document.createElement('button');
+                closeButton.innerHTML = '✕';
+                closeButton.style.cssText = `
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    background: rgba(0,0,0,0.7);
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 40px;
+                    height: 40px;
+                    font-size: 20px;
+                    cursor: pointer;
+                    z-index: 10000;
+                `;
+                
+                closeButton.addEventListener('click', () => {
+                    exitFullscreen();
+                });
+                
+                // Add keyboard support for escape key
+                const handleKeyPress = (e) => {
+                    if (e.key === 'Escape') {
+                        exitFullscreen();
+                        document.removeEventListener('keydown', handleKeyPress);
+                    }
+                };
+                document.addEventListener('keydown', handleKeyPress);
+                
+                fullscreenContainer.appendChild(fullscreenIframe);
+                fullscreenContainer.appendChild(closeButton);
+                document.body.appendChild(fullscreenContainer);
+                
+                // Request fullscreen
+                if (fullscreenContainer.requestFullscreen) {
+                    fullscreenContainer.requestFullscreen();
+                } else if (fullscreenContainer.webkitRequestFullscreen) {
+                    fullscreenContainer.webkitRequestFullscreen();
+                } else if (fullscreenContainer.msRequestFullscreen) {
+                    fullscreenContainer.msRequestFullscreen();
                 }
-            });
-            
-            demoState.isFullscreen = true;
+                
+                demoState.isFullscreen = true;
+                demoState.fullscreenType = demoType;
+                demoState.fullscreenContainer = fullscreenContainer;
+                
+                // Update button states
+                updateFullscreenButtons(true, demoType);
+            }
+        } else {
+            exitFullscreen();
+        }
+    }
+
+    function exitFullscreen() {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        
+        // Remove fullscreen container
+        if (demoState.fullscreenContainer) {
+            document.body.removeChild(demoState.fullscreenContainer);
+            demoState.fullscreenContainer = null;
+        }
+        
+        demoState.isFullscreen = false;
+        demoState.fullscreenType = null;
+        
+        // Update button states
+        updateFullscreenButtons(false, 'both');
+    }
+
+    function updateFullscreenButtons(isFullscreen, demoType) {
+        const expandIcon = 'fas fa-expand';
+        const compressIcon = 'fas fa-compress';
+        
+        if (isFullscreen) {
+            if (demoType === 'pose' || demoType === 'both') {
+                if (fullscreenPoseBtn) {
+                    fullscreenPoseBtn.querySelector('i').className = compressIcon;
+                    fullscreenPoseBtn.querySelector('span:last-child').textContent = 'Exit';
+                }
+            }
+            if (demoType === 'size' || demoType === 'both') {
+                if (fullscreenSizeBtn) {
+                    fullscreenSizeBtn.querySelector('i').className = compressIcon;
+                    fullscreenSizeBtn.querySelector('span:last-child').textContent = 'Exit';
+                }
+            }
             if (fullscreenBtn) {
-                fullscreenBtn.querySelector('i').className = 'fas fa-compress';
+                fullscreenBtn.querySelector('i').className = compressIcon;
                 fullscreenBtn.querySelector('span:last-child').textContent = 'Exit Fullscreen';
             }
-            
-            // Adjust iframe heights for fullscreen
-            poseIframe.style.height = '70vh';
-            sizeIframe.style.height = '70vh';
         } else {
-            // Exit fullscreen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
+            if (fullscreenPoseBtn) {
+                fullscreenPoseBtn.querySelector('i').className = expandIcon;
+                fullscreenPoseBtn.querySelector('span:last-child').textContent = 'Fullscreen';
             }
-            
-            demoState.isFullscreen = false;
+            if (fullscreenSizeBtn) {
+                fullscreenSizeBtn.querySelector('i').className = expandIcon;
+                fullscreenSizeBtn.querySelector('span:last-child').textContent = 'Fullscreen';
+            }
             if (fullscreenBtn) {
-                fullscreenBtn.querySelector('i').className = 'fas fa-expand';
+                fullscreenBtn.querySelector('i').className = expandIcon;
                 fullscreenBtn.querySelector('span:last-child').textContent = 'Fullscreen View';
             }
-            
-            // Reset iframe heights
-            poseIframe.style.height = '400px';
-            sizeIframe.style.height = '400px';
         }
     }
 
@@ -480,13 +592,7 @@ function initializeBoxAugmentationDemo() {
     function handleFullscreenChange() {
         if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
             // Exited fullscreen
-            demoState.isFullscreen = false;
-            if (fullscreenBtn) {
-                fullscreenBtn.querySelector('i').className = 'fas fa-expand';
-                fullscreenBtn.querySelector('span:last-child').textContent = 'Fullscreen View';
-            }
-            poseIframe.style.height = '400px';
-            sizeIframe.style.height = '400px';
+            exitFullscreen();
         }
     }
 
