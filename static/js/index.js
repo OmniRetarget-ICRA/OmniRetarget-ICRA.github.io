@@ -86,6 +86,8 @@ function initializeBoxAugmentationDemo() {
     let demoState = {
         currentPose: 'original',
         currentSize: 'original',
+        selectedTerrains: ['original'], // Array to support multiple selections
+        currentEmbodiment: 't1_box',
         isFullscreen: false,
         fullscreenType: null,
         fullscreenContainer: null
@@ -143,25 +145,88 @@ function initializeBoxAugmentationDemo() {
         }
     };
 
+    const terrainConfigs = {
+        '0.8': {
+            elements: ['g1_29dof', 'multi_boxes'],
+            title: 'Terrain Height 0.8×',
+            description: 'Interactive 3D visualization with 80% terrain height'
+        },
+        '0.9': {
+            elements: ['g1_29dof_1', 'multi_boxes_1'],
+            title: 'Terrain Height 0.9×',
+            description: 'Interactive 3D visualization with 90% terrain height'
+        },
+        original: {
+            elements: ['g1_29dof_2', 'multi_boxes_2'],
+            title: 'Original Terrain Height',
+            description: 'Interactive 3D visualization with original terrain height'
+        },
+        '1.1': {
+            elements: ['g1_29dof_3', 'multi_boxes_3'],
+            title: 'Terrain Height 1.1×',
+            description: 'Interactive 3D visualization with 110% terrain height'
+        },
+        '1.2': {
+            elements: ['g1_29dof_4', 'multi_boxes_4'],
+            title: 'Terrain Height 1.2×',
+            description: 'Interactive 3D visualization with 120% terrain height'
+        }
+    };
+
+    const embodimentConfigs = {
+        h1_box: {
+            html: 'h1_box.html',
+            title: 'H1 Robot - Box Task',
+            description: 'Interactive 3D visualization with H1 robot handling box task'
+        },
+        h1_climb: {
+            html: 'h1_climb.html',
+            title: 'H1 Robot - Climbing Task',
+            description: 'Interactive 3D visualization with H1 robot performing climbing'
+        },
+        t1_box: {
+            html: 't1_box.html',
+            title: 'T1 Robot - Box Task',
+            description: 'Interactive 3D visualization with T1 robot handling box task'
+        },
+        t1_climb: {
+            html: 't1_climb.html',
+            title: 'T1 Robot - Climbing Task',
+            description: 'Interactive 3D visualization with T1 robot performing climbing'
+        }
+    };
+
     // File path configurations
     const filePaths = {
         pose: './static/interactive_demo/box_pose/',
-        size: './static/interactive_demo/box_size/'
+        size: './static/interactive_demo/box_size/',
+        terrain: './static/interactive_demo/terrain/',
+        embodiment: './static/interactive_demo/embodiment/'
     };
 
     // Get DOM elements
     const poseIframe = document.getElementById('pose-demo-iframe');
     const sizeIframe = document.getElementById('size-demo-iframe');
+    const terrainIframe = document.getElementById('terrain-demo-iframe');
+    const embodimentIframe = document.getElementById('embodiment-demo-iframe');
     const poseDescription = document.getElementById('pose-description');
     const sizeDescription = document.getElementById('size-description');
+    const terrainDescription = document.getElementById('terrain-description');
+    const embodimentDescription = document.getElementById('embodiment-description');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
     const fullscreenPoseBtn = document.getElementById('fullscreen-pose-btn');
     const fullscreenSizeBtn = document.getElementById('fullscreen-size-btn');
+    const fullscreenTerrainBtn = document.getElementById('fullscreen-terrain-btn');
+    const fullscreenEmbodimentBtn = document.getElementById('fullscreen-embodiment-btn');
     const sizeSelect = document.getElementById('size-select');
     const loadPoseDemoBtn = document.getElementById('load-pose-demo-btn');
     const loadSizeDemoBtn = document.getElementById('load-size-demo-btn');
+    const loadTerrainDemoBtn = document.getElementById('load-terrain-demo-btn');
+    const loadEmbodimentDemoBtn = document.getElementById('load-embodiment-demo-btn');
     const poseOptions = document.querySelectorAll('.pose-option');
     const sizeOptions = document.querySelectorAll('.size-option');
+    const terrainOptions = document.querySelectorAll('.terrain-option');
+    const embodimentOptions = document.querySelectorAll('.embodiment-option');
 
     // Check if required elements exist
     if (!poseIframe) {
@@ -188,6 +253,18 @@ function initializeBoxAugmentationDemo() {
     }
     if (fullscreenSizeBtn) {
         fullscreenSizeBtn.addEventListener('click', () => toggleFullscreen('size'));
+    }
+    if (loadTerrainDemoBtn) {
+        loadTerrainDemoBtn.addEventListener('click', loadTerrainDemo);
+    }
+    if (loadEmbodimentDemoBtn) {
+        loadEmbodimentDemoBtn.addEventListener('click', loadEmbodimentDemo);
+    }
+    if (fullscreenTerrainBtn) {
+        fullscreenTerrainBtn.addEventListener('click', () => toggleFullscreen('terrain'));
+    }
+    if (fullscreenEmbodimentBtn) {
+        fullscreenEmbodimentBtn.addEventListener('click', () => toggleFullscreen('embodiment'));
     }
 
     // Add click listeners to pose options
@@ -224,9 +301,47 @@ function initializeBoxAugmentationDemo() {
         });
     });
 
+    // Add click listeners to terrain options
+    terrainOptions.forEach((option, index) => {
+        // Primary click handler
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectTerrainOption(option);
+        });
+        
+        // Touch support for mobile devices
+        option.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectTerrainOption(option);
+        });
+    });
+
+    // Add click listeners to embodiment options
+    embodimentOptions.forEach((option, index) => {
+        // Primary click handler
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectEmbodimentOption(option);
+        });
+        
+        // Touch support for mobile devices
+        option.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectEmbodimentOption(option);
+        });
+    });
+
     // Initialize
     selectPoseOption(poseOptions[0]); // Select first option by default
     selectSizeOption(sizeOptions[0]); // Select first option by default
+    // Select "original" terrain by default (index 2) without triggering toggle
+    terrainOptions[2].classList.add('active');
+    updateTerrainDescription();
+    selectEmbodimentOption(embodimentOptions[0]); // Select first embodiment by default
 
     function selectPoseOption(selectedOption) {
         // Remove active class from all options
@@ -284,6 +399,82 @@ function initializeBoxAugmentationDemo() {
         if (config) {
             sizeDescription.textContent = config.description;
         }
+    }
+
+    function selectTerrainOption(selectedOption) {
+        const terrainValue = selectedOption.dataset.terrain;
+        
+        // Toggle selection (allow multiple selections)
+        if (selectedOption.classList.contains('active')) {
+            // Remove from selection
+            selectedOption.classList.remove('active');
+            const index = demoState.selectedTerrains.indexOf(terrainValue);
+            if (index > -1) {
+                demoState.selectedTerrains.splice(index, 1);
+            }
+        } else {
+            // Add to selection
+            selectedOption.classList.add('active');
+            demoState.selectedTerrains.push(terrainValue);
+        }
+        
+        // Update description based on selected terrains
+        updateTerrainDescription();
+        
+        // Add click effect
+        addClickEffect(selectedOption);
+        
+        // Toggle terrain elements in iframe
+        toggleTerrainElements();
+    }
+
+    function updateTerrainDescription() {
+        if (demoState.selectedTerrains.length === 0) {
+            terrainDescription.textContent = 'No terrain heights selected';
+        } else if (demoState.selectedTerrains.length === 1) {
+            const config = terrainConfigs[demoState.selectedTerrains[0]];
+            terrainDescription.textContent = config.description;
+        } else {
+            terrainDescription.textContent = `Interactive 3D visualization with ${demoState.selectedTerrains.length} terrain heights selected`;
+        }
+    }
+
+    function toggleTerrainElements() {
+        // Send message to iframe to toggle terrain elements
+        const iframe = terrainIframe;
+        if (iframe && iframe.contentWindow) {
+            const message = {
+                type: 'toggleTerrainElements',
+                selectedTerrains: demoState.selectedTerrains,
+                terrainConfigs: terrainConfigs
+            };
+            iframe.contentWindow.postMessage(message, '*');
+        }
+    }
+
+    function selectEmbodimentOption(selectedOption) {
+        // Remove active class from all options
+        embodimentOptions.forEach(option => {
+            option.classList.remove('active');
+        });
+        
+        // Add active class to selected option
+        selectedOption.classList.add('active');
+        
+        // Store current embodiment
+        demoState.currentEmbodiment = selectedOption.dataset.embodiment;
+        
+        // Update description
+        const config = embodimentConfigs[selectedOption.dataset.embodiment];
+        if (config) {
+            embodimentDescription.textContent = config.description;
+        }
+        
+        // Add click effect
+        addClickEffect(selectedOption);
+        
+        // Automatically load the demo when an embodiment option is selected
+        loadEmbodimentDemo();
     }
 
     function loadPoseDemo() {
@@ -369,6 +560,81 @@ function initializeBoxAugmentationDemo() {
         }
     }
 
+    function loadTerrainDemo() {
+        // Load the base terrain demo file
+        const htmlPath = `${filePaths.terrain}climb_00.html`;
+        
+        // Add loading indicator
+        showLoadingIndicator('terrain');
+        
+        // Force iframe reload by clearing src first
+        terrainIframe.src = '';
+        
+        // Small delay to ensure iframe is cleared
+        setTimeout(() => {
+            terrainIframe.src = htmlPath;
+        }, 100);
+
+        // Hide loading indicator after iframe loads
+        terrainIframe.onload = () => {
+            hideLoadingIndicator('terrain');
+            // After iframe loads, apply current terrain selections
+            setTimeout(() => {
+                toggleTerrainElements();
+            }, 500); // Small delay to ensure iframe content is ready
+        };
+
+        // Handle loading errors
+        terrainIframe.onerror = () => {
+            hideLoadingIndicator('terrain');
+            console.error('Failed to load terrain demo:', htmlPath);
+            terrainDescription.textContent = 'Error loading demo. Please try again.';
+        };
+
+        // Add loading effect to button
+        addLoadingEffect(loadTerrainDemoBtn);
+    }
+
+    function loadEmbodimentDemo() {
+        const selectedEmbodiment = demoState.currentEmbodiment;
+        const config = embodimentConfigs[selectedEmbodiment];
+        
+        if (config && config.html) {
+            const htmlPath = `${filePaths.embodiment}${config.html}`;
+            
+            // Add loading indicator
+            showLoadingIndicator('embodiment');
+            
+            // Force iframe reload by clearing src first
+            embodimentIframe.src = '';
+            
+            // Small delay to ensure iframe is cleared
+            setTimeout(() => {
+                embodimentIframe.src = htmlPath;
+            }, 100);
+
+            // Update description
+            embodimentDescription.textContent = config.description;
+
+            // Hide loading indicator after iframe loads
+            embodimentIframe.onload = () => {
+                hideLoadingIndicator('embodiment');
+            };
+
+            // Handle loading errors
+            embodimentIframe.onerror = () => {
+                hideLoadingIndicator('embodiment');
+                console.error('Failed to load embodiment demo:', htmlPath);
+                embodimentDescription.textContent = 'Error loading demo. Please try again.';
+            };
+
+            // Add loading effect to button
+            addLoadingEffect(loadEmbodimentDemoBtn);
+        } else {
+            console.error('No config found for embodiment:', selectedEmbodiment);
+        }
+    }
+
     function addClickEffect(element) {
         element.style.transform = 'scale(0.95)';
         setTimeout(() => {
@@ -378,7 +644,9 @@ function initializeBoxAugmentationDemo() {
 
     function toggleFullscreen(demoType = 'both') {
         const targetIframe = demoType === 'pose' ? poseIframe : 
-                           demoType === 'size' ? sizeIframe : null;
+                           demoType === 'size' ? sizeIframe :
+                           demoType === 'terrain' ? terrainIframe :
+                           demoType === 'embodiment' ? embodimentIframe : null;
         
         if (!demoState.isFullscreen) {
             // Enter fullscreen - target only the iframe
@@ -504,6 +772,18 @@ function initializeBoxAugmentationDemo() {
                     fullscreenSizeBtn.querySelector('span:last-child').textContent = 'Exit';
                 }
             }
+            if (demoType === 'terrain' || demoType === 'both') {
+                if (fullscreenTerrainBtn) {
+                    fullscreenTerrainBtn.querySelector('i').className = compressIcon;
+                    fullscreenTerrainBtn.querySelector('span:last-child').textContent = 'Exit';
+                }
+            }
+            if (demoType === 'embodiment' || demoType === 'both') {
+                if (fullscreenEmbodimentBtn) {
+                    fullscreenEmbodimentBtn.querySelector('i').className = compressIcon;
+                    fullscreenEmbodimentBtn.querySelector('span:last-child').textContent = 'Exit';
+                }
+            }
             if (fullscreenBtn) {
                 fullscreenBtn.querySelector('i').className = compressIcon;
                 fullscreenBtn.querySelector('span:last-child').textContent = 'Exit Fullscreen';
@@ -516,6 +796,14 @@ function initializeBoxAugmentationDemo() {
             if (fullscreenSizeBtn) {
                 fullscreenSizeBtn.querySelector('i').className = expandIcon;
                 fullscreenSizeBtn.querySelector('span:last-child').textContent = 'Fullscreen';
+            }
+            if (fullscreenTerrainBtn) {
+                fullscreenTerrainBtn.querySelector('i').className = expandIcon;
+                fullscreenTerrainBtn.querySelector('span:last-child').textContent = 'Fullscreen';
+            }
+            if (fullscreenEmbodimentBtn) {
+                fullscreenEmbodimentBtn.querySelector('i').className = expandIcon;
+                fullscreenEmbodimentBtn.querySelector('span:last-child').textContent = 'Fullscreen';
             }
             if (fullscreenBtn) {
                 fullscreenBtn.querySelector('i').className = expandIcon;
