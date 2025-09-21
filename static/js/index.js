@@ -86,7 +86,7 @@ function initializeBoxAugmentationDemo() {
     let demoState = {
         currentPose: 'original',
         currentSize: 'original',
-        selectedTerrains: ['original'], // Array to support multiple selections
+        currentTerrain: 'original', // Single selection like other sections
         currentEmbodiment: 't1_box',
         isFullscreen: false,
         fullscreenType: null,
@@ -147,27 +147,27 @@ function initializeBoxAugmentationDemo() {
 
     const terrainConfigs = {
         '0.8': {
-            elements: ['g1_29dof', 'multi_boxes'],
+            html: 'climb_0.8.html',
             title: 'Terrain Height 0.8×',
             description: 'Interactive 3D visualization with 80% terrain height'
         },
         '0.9': {
-            elements: ['g1_29dof_1', 'multi_boxes_1'],
+            html: 'climb_0.9.html',
             title: 'Terrain Height 0.9×',
             description: 'Interactive 3D visualization with 90% terrain height'
         },
         original: {
-            elements: ['g1_29dof_2', 'multi_boxes_2'],
+            html: 'climb_1.0.html',
             title: 'Original Terrain Height',
             description: 'Interactive 3D visualization with original terrain height'
         },
         '1.1': {
-            elements: ['g1_29dof_3', 'multi_boxes_3'],
+            html: 'climb_1.1.html',
             title: 'Terrain Height 1.1×',
             description: 'Interactive 3D visualization with 110% terrain height'
         },
         '1.2': {
-            elements: ['g1_29dof_4', 'multi_boxes_4'],
+            html: 'climb_1.2.html',
             title: 'Terrain Height 1.2×',
             description: 'Interactive 3D visualization with 120% terrain height'
         }
@@ -338,9 +338,7 @@ function initializeBoxAugmentationDemo() {
     // Initialize
     selectPoseOption(poseOptions[0]); // Select first option by default
     selectSizeOption(sizeOptions[0]); // Select first option by default
-    // Select "original" terrain by default (index 2) without triggering toggle
-    terrainOptions[2].classList.add('active');
-    updateTerrainDescription();
+    selectTerrainOption(terrainOptions[2]); // Select "original" terrain by default (index 2)
     selectEmbodimentOption(embodimentOptions[0]); // Select first embodiment by default
 
     function selectPoseOption(selectedOption) {
@@ -402,55 +400,30 @@ function initializeBoxAugmentationDemo() {
     }
 
     function selectTerrainOption(selectedOption) {
-        const terrainValue = selectedOption.dataset.terrain;
+        // Remove active class from all options
+        terrainOptions.forEach(option => {
+            option.classList.remove('active');
+        });
         
-        // Toggle selection (allow multiple selections)
-        if (selectedOption.classList.contains('active')) {
-            // Remove from selection
-            selectedOption.classList.remove('active');
-            const index = demoState.selectedTerrains.indexOf(terrainValue);
-            if (index > -1) {
-                demoState.selectedTerrains.splice(index, 1);
-            }
-        } else {
-            // Add to selection
-            selectedOption.classList.add('active');
-            demoState.selectedTerrains.push(terrainValue);
+        // Add active class to selected option
+        selectedOption.classList.add('active');
+        
+        // Store current terrain
+        demoState.currentTerrain = selectedOption.dataset.terrain;
+        
+        // Update description
+        const config = terrainConfigs[selectedOption.dataset.terrain];
+        if (config) {
+            terrainDescription.textContent = config.description;
         }
-        
-        // Update description based on selected terrains
-        updateTerrainDescription();
         
         // Add click effect
         addClickEffect(selectedOption);
         
-        // Toggle terrain elements in iframe
-        toggleTerrainElements();
+        // Automatically load the demo when a terrain option is selected
+        loadTerrainDemo();
     }
 
-    function updateTerrainDescription() {
-        if (demoState.selectedTerrains.length === 0) {
-            terrainDescription.textContent = 'No terrain heights selected';
-        } else if (demoState.selectedTerrains.length === 1) {
-            const config = terrainConfigs[demoState.selectedTerrains[0]];
-            terrainDescription.textContent = config.description;
-        } else {
-            terrainDescription.textContent = `Interactive 3D visualization with ${demoState.selectedTerrains.length} terrain heights selected`;
-        }
-    }
-
-    function toggleTerrainElements() {
-        // Send message to iframe to toggle terrain elements
-        const iframe = terrainIframe;
-        if (iframe && iframe.contentWindow) {
-            const message = {
-                type: 'toggleTerrainElements',
-                selectedTerrains: demoState.selectedTerrains,
-                terrainConfigs: terrainConfigs
-            };
-            iframe.contentWindow.postMessage(message, '*');
-        }
-    }
 
     function selectEmbodimentOption(selectedOption) {
         // Remove active class from all options
@@ -561,38 +534,43 @@ function initializeBoxAugmentationDemo() {
     }
 
     function loadTerrainDemo() {
-        // Load the base terrain demo file
-        const htmlPath = `${filePaths.terrain}climb_00.html`;
+        const selectedTerrain = demoState.currentTerrain;
+        const config = terrainConfigs[selectedTerrain];
         
-        // Add loading indicator
-        showLoadingIndicator('terrain');
-        
-        // Force iframe reload by clearing src first
-        terrainIframe.src = '';
-        
-        // Small delay to ensure iframe is cleared
-        setTimeout(() => {
-            terrainIframe.src = htmlPath;
-        }, 100);
-
-        // Hide loading indicator after iframe loads
-        terrainIframe.onload = () => {
-            hideLoadingIndicator('terrain');
-            // After iframe loads, apply current terrain selections
+        if (config && config.html) {
+            const htmlPath = `${filePaths.terrain}${config.html}`;
+            
+            // Add loading indicator
+            showLoadingIndicator('terrain');
+            
+            // Force iframe reload by clearing src first
+            terrainIframe.src = '';
+            
+            // Small delay to ensure iframe is cleared
             setTimeout(() => {
-                toggleTerrainElements();
-            }, 500); // Small delay to ensure iframe content is ready
-        };
+                terrainIframe.src = htmlPath;
+            }, 100);
 
-        // Handle loading errors
-        terrainIframe.onerror = () => {
-            hideLoadingIndicator('terrain');
-            console.error('Failed to load terrain demo:', htmlPath);
-            terrainDescription.textContent = 'Error loading demo. Please try again.';
-        };
+            // Update description
+            terrainDescription.textContent = config.description;
 
-        // Add loading effect to button
-        addLoadingEffect(loadTerrainDemoBtn);
+            // Hide loading indicator after iframe loads
+            terrainIframe.onload = () => {
+                hideLoadingIndicator('terrain');
+            };
+
+            // Handle loading errors
+            terrainIframe.onerror = () => {
+                hideLoadingIndicator('terrain');
+                console.error('Failed to load terrain demo:', htmlPath);
+                terrainDescription.textContent = 'Error loading demo. Please try again.';
+            };
+
+            // Add loading effect to button
+            addLoadingEffect(loadTerrainDemoBtn);
+        } else {
+            console.error('No config found for terrain:', selectedTerrain);
+        }
     }
 
     function loadEmbodimentDemo() {
