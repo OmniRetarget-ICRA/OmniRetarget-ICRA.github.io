@@ -616,6 +616,9 @@ function initializeBoxAugmentationDemo() {
         selectedOption.classList.add('active');
         demoState.currentBaselineTask = selectedOption.dataset.baselineTask;
         addClickEffect(selectedOption);
+        // Keep OmniRetarget task in sync with selected baseline task
+        demoState.currentOmniRetargetTask = demoState.currentBaselineTask;
+        loadOmniRetargetDemo();
         loadBaselineMethodDemo();
     }
 
@@ -843,7 +846,9 @@ function initializeBoxAugmentationDemo() {
                 console.error('Failed to load omniretarget demo:', htmlPath);
                 omniretargetDescription.textContent = 'Error loading demo. Please try again.';
             };
-            addLoadingEffect(loadOmniRetargetDemoBtn);
+            if (typeof loadOmniRetargetDemoBtn !== 'undefined' && loadOmniRetargetDemoBtn) {
+                addLoadingEffect(loadOmniRetargetDemoBtn);
+            }
         } else {
             console.error('No config found for omniretarget:', selected);
         }

@@ -608,6 +608,81 @@ body {
   color: white;
 }
 
+/* LAFAN Options Panel Styles (blue theme) */
+.lafan-options-panel {
+}
+
+.lafan-option {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem 0.2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.lafan-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.12), transparent);
+  transition: left 0.5s ease;
+}
+
+.lafan-option:hover::before {
+  left: 100%;
+}
+
+.lafan-option:hover {
+  transform: translateY(-2px);
+  border-color: #3498db;
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.25);
+}
+
+.lafan-option.active {
+  border-color: #3498db;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(52, 152, 219, 0.3);
+}
+
+.lafan-option .lafan-icon {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  color: #3498db;
+  transition: all 0.3s ease;
+}
+
+.lafan-option:hover .lafan-icon {
+  transform: scale(1.1);
+  color: #2980b9;
+}
+
+.lafan-option.active .lafan-icon {
+  color: white;
+  transform: scale(1.1);
+}
+
+.lafan-option .lafan-label {
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: #333;
+  transition: color 0.3s ease;
+  line-height: 1.1;
+}
+
+.lafan-option.active .lafan-label {
+  color: white;
+}
+
 /* Baseline Comparison Container */
 .baseline-comparison-container {
   background: #f8f9fa;
