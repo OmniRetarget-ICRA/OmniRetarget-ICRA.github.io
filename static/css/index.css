@@ -608,6 +608,253 @@ body {
   color: white;
 }
 
+/* Baseline Comparison Container */
+.baseline-comparison-container {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Baseline Method Options Panel Styles */
+.baseline-method-options-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.baseline-method-option {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.baseline-method-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(44, 62, 80, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.baseline-method-option:hover::before {
+  left: 100%;
+}
+
+.baseline-method-option:hover {
+  transform: translateY(-2px);
+  border-color: #2c3e50;
+  box-shadow: 0 4px 8px rgba(44, 62, 80, 0.2);
+}
+
+.baseline-method-option.active {
+  border-color: #2c3e50;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(44, 62, 80, 0.3);
+}
+
+.baseline-method-option .baseline-method-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.baseline-method-option:hover .baseline-method-icon {
+  transform: scale(1.1);
+  color: #34495e;
+}
+
+.baseline-method-option.active .baseline-method-icon {
+  color: white;
+  transform: scale(1.1);
+}
+
+.baseline-method-option .baseline-method-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #333;
+  transition: color 0.3s ease;
+  line-height: 1.2;
+}
+
+.baseline-method-option.active .baseline-method-label {
+  color: white;
+}
+
+/* Baseline Task Options Panel Styles */
+.baseline-task-options-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.baseline-task-option {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.baseline-task-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(44, 62, 80, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.baseline-task-option:hover::before {
+  left: 100%;
+}
+
+.baseline-task-option:hover {
+  transform: translateY(-2px);
+  border-color: #2c3e50;
+  box-shadow: 0 4px 8px rgba(44, 62, 80, 0.2);
+}
+
+.baseline-task-option.active {
+  border-color: #2c3e50;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(44, 62, 80, 0.3);
+}
+
+.baseline-task-option .baseline-task-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.baseline-task-option:hover .baseline-task-icon {
+  transform: scale(1.1);
+  color: #34495e;
+}
+
+.baseline-task-option.active .baseline-task-icon {
+  color: white;
+  transform: scale(1.1);
+}
+
+.baseline-task-option .baseline-task-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #333;
+  transition: color 0.3s ease;
+  line-height: 1.2;
+}
+
+.baseline-task-option.active .baseline-task-label {
+  color: white;
+}
+
+/* OmniRetarget Task Options Panel Styles - REMOVED */
+
+/* Legacy Baseline Options Panel Styles (keeping for compatibility) */
+.baseline-options-panel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.baseline-box-option, .baseline-climb-option {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem 0.2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.baseline-box-option::before, .baseline-climb-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(44, 62, 80, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.baseline-box-option:hover::before, .baseline-climb-option:hover::before {
+  left: 100%;
+}
+
+.baseline-box-option:hover, .baseline-climb-option:hover {
+  transform: translateY(-2px);
+  border-color: #2c3e50;
+  box-shadow: 0 4px 8px rgba(44, 62, 80, 0.2);
+}
+
+.baseline-box-option.active, .baseline-climb-option.active {
+  border-color: #2c3e50;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(44, 62, 80, 0.3);
+}
+
+.baseline-box-option .baseline-icon, .baseline-climb-option .baseline-icon {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.baseline-box-option:hover .baseline-icon, .baseline-climb-option:hover .baseline-icon {
+  transform: scale(1.1);
+  color: #34495e;
+}
+
+.baseline-box-option.active .baseline-icon, .baseline-climb-option.active .baseline-icon {
+  color: white;
+  transform: scale(1.1);
+}
+
+.baseline-box-option .baseline-label, .baseline-climb-option .baseline-label {
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: #333;
+  transition: color 0.3s ease;
+  line-height: 1.1;
+}
+
+.baseline-box-option.active .baseline-label, .baseline-climb-option.active .baseline-label {
+  color: white;
+}
+
 /* Responsive design for terrain and embodiment buttons */
 @media (max-width: 768px) {
   .terrain-options-panel {
@@ -620,16 +867,24 @@ body {
     gap: 0.3rem;
   }
   
-  .terrain-option, .embodiment-option {
+  .baseline-options-panel, .baseline-method-options-panel, .baseline-task-options-panel {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.3rem;
+  }
+  
+  .terrain-option, .embodiment-option, .baseline-box-option, .baseline-climb-option, 
+  .baseline-method-option, .baseline-task-option {
     padding: 0.6rem 0.1rem;
   }
   
-  .terrain-option .terrain-icon, .embodiment-option .embodiment-icon {
+  .terrain-option .terrain-icon, .embodiment-option .embodiment-icon, .baseline-box-option .baseline-icon, .baseline-climb-option .baseline-icon,
+  .baseline-method-option .baseline-method-icon, .baseline-task-option .baseline-task-icon {
     font-size: 0.9rem;
     margin-bottom: 0.2rem;
   }
   
-  .terrain-option .terrain-label, .embodiment-option .embodiment-label {
+  .terrain-option .terrain-label, .embodiment-option .embodiment-label, .baseline-box-option .baseline-label, .baseline-climb-option .baseline-label,
+  .baseline-method-option .baseline-method-label, .baseline-task-option .baseline-task-label {
     font-size: 0.65rem;
   }
 }
@@ -645,7 +900,13 @@ body {
     gap: 0.2rem;
   }
   
-  .terrain-option, .embodiment-option {
+  .baseline-options-panel, .baseline-method-options-panel, .baseline-task-options-panel {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.2rem;
+  }
+  
+  .terrain-option, .embodiment-option, .baseline-box-option, .baseline-climb-option, 
+  .baseline-method-option, .baseline-task-option {
     padding: 0.5rem 0.1rem;
   }
 }

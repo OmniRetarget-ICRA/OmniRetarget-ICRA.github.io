@@ -88,6 +88,10 @@ function initializeBoxAugmentationDemo() {
         currentSize: 'original',
         currentTerrain: 'original', // Single selection like other sections
         currentEmbodiment: 't1_box',
+        currentBaselineMethod: 'gmr',
+        currentBaselineTask: 'box',
+        currentOmniRetargetTask: 'box',
+        currentLafan: 'dance1_subject1',
         isFullscreen: false,
         fullscreenType: null,
         fullscreenContainer: null
@@ -196,12 +200,70 @@ function initializeBoxAugmentationDemo() {
         }
     };
 
+    const baselineConfigs = {
+        gmr_box: {
+            html: 'gmr_box.html',
+            title: 'GMR - Box',
+            description: 'GMR baseline on box task'
+        },
+        gmr_climb: {
+            html: 'gmr_climb.html',
+            title: 'GMR - Climb',
+            description: 'GMR baseline on climb task'
+        },
+        phc_box: {
+            html: 'phc_box.html',
+            title: 'PHC - Box',
+            description: 'PHC baseline on box task'
+        },
+        phc_climb: {
+            html: 'phc_climb.html',
+            title: 'PHC - Climb',
+            description: 'PHC baseline on climb task'
+        },
+        omniretarget_box: {
+            html: 'omniretarget_box.html',
+            title: 'OmniRetarget - Box',
+            description: 'OmniRetarget results on box task'
+        },
+        omniretarget_climb: {
+            html: 'omniretarget_climb.html',
+            title: 'OmniRetarget - Climb',
+            description: 'OmniRetarget results on climb task'
+        }
+    };
+
+    const lafanConfigs = {
+        dance1_subject1: {
+            html: 'dance1_subject1.html',
+            title: 'Dance 1 - Subject 1',
+            description: 'LAFAN1 sequence: Dance 1, Subject 1'
+        },
+        ground1_subject4: {
+            html: 'ground1_subject4..html',
+            title: 'Ground 1 - Subject 4',
+            description: 'LAFAN1 sequence: Ground 1, Subject 4'
+        },
+        multipleActions1_subject4: {
+            html: 'multipleActions1_subject4.html',
+            title: 'Multiple Actions 1 - Subject 4',
+            description: 'LAFAN1 sequence: Multiple Actions 1, Subject 4'
+        },
+        obstacles1_subject1: {
+            html: 'obstacles1_subject1.html',
+            title: 'Obstacles 1 - Subject 1',
+            description: 'LAFAN1 sequence: Obstacles 1, Subject 1'
+        }
+    };
+
     // File path configurations
     const filePaths = {
         pose: './static/interactive_demo/box_pose/',
         size: './static/interactive_demo/box_size/',
         terrain: './static/interactive_demo/terrain/',
-        embodiment: './static/interactive_demo/embodiment/'
+        embodiment: './static/interactive_demo/embodiment/',
+        baseline: './static/interactive_demo/baseline/',
+        lafan: './static/interactive_demo/lafan/'
     };
 
     // Get DOM elements
@@ -209,24 +271,38 @@ function initializeBoxAugmentationDemo() {
     const sizeIframe = document.getElementById('size-demo-iframe');
     const terrainIframe = document.getElementById('terrain-demo-iframe');
     const embodimentIframe = document.getElementById('embodiment-demo-iframe');
+    const baselineMethodIframe = document.getElementById('baseline-method-demo-iframe');
+    const omniretargetIframe = document.getElementById('omniretarget-demo-iframe');
+    const lafanIframe = document.getElementById('lafan-demo-iframe');
     const poseDescription = document.getElementById('pose-description');
     const sizeDescription = document.getElementById('size-description');
     const terrainDescription = document.getElementById('terrain-description');
     const embodimentDescription = document.getElementById('embodiment-description');
+    const baselineMethodDescription = document.getElementById('baseline-method-description');
+    const omniretargetDescription = document.getElementById('omniretarget-description');
+    const lafanDescription = document.getElementById('lafan-description');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
     const fullscreenPoseBtn = document.getElementById('fullscreen-pose-btn');
     const fullscreenSizeBtn = document.getElementById('fullscreen-size-btn');
     const fullscreenTerrainBtn = document.getElementById('fullscreen-terrain-btn');
     const fullscreenEmbodimentBtn = document.getElementById('fullscreen-embodiment-btn');
+    const fullscreenBaselineBtn = document.getElementById('fullscreen-baseline-btn');
+    const fullscreenLafanBtn = document.getElementById('fullscreen-lafan-btn');
     const sizeSelect = document.getElementById('size-select');
     const loadPoseDemoBtn = document.getElementById('load-pose-demo-btn');
     const loadSizeDemoBtn = document.getElementById('load-size-demo-btn');
     const loadTerrainDemoBtn = document.getElementById('load-terrain-demo-btn');
     const loadEmbodimentDemoBtn = document.getElementById('load-embodiment-demo-btn');
+    const loadBaselineMethodDemoBtn = document.getElementById('load-baseline-method-demo-btn');
+    const loadLafanDemoBtn = document.getElementById('load-lafan-demo-btn');
     const poseOptions = document.querySelectorAll('.pose-option');
     const sizeOptions = document.querySelectorAll('.size-option');
     const terrainOptions = document.querySelectorAll('.terrain-option');
     const embodimentOptions = document.querySelectorAll('.embodiment-option');
+    const baselineMethodOptions = document.querySelectorAll('.baseline-method-option');
+    const baselineTaskOptions = document.querySelectorAll('.baseline-task-option');
+    const omniretargetTaskOptions = document.querySelectorAll('.omniretarget-task-option');
+    const lafanOptions = document.querySelectorAll('.lafan-option');
 
     // Check if required elements exist
     if (!poseIframe) {
@@ -260,11 +336,28 @@ function initializeBoxAugmentationDemo() {
     if (loadEmbodimentDemoBtn) {
         loadEmbodimentDemoBtn.addEventListener('click', loadEmbodimentDemo);
     }
+    if (loadBaselineMethodDemoBtn) {
+        loadBaselineMethodDemoBtn.addEventListener('click', loadBaselineMethodDemo);
+    }
+    if (loadLafanDemoBtn) {
+        loadLafanDemoBtn.addEventListener('click', loadLafanDemo);
+    }
     if (fullscreenTerrainBtn) {
         fullscreenTerrainBtn.addEventListener('click', () => toggleFullscreen('terrain'));
     }
     if (fullscreenEmbodimentBtn) {
         fullscreenEmbodimentBtn.addEventListener('click', () => toggleFullscreen('embodiment'));
+    }
+    const fullscreenBaselineMethodBtn = document.getElementById('fullscreen-baseline-method-btn');
+    const fullscreenOmniRetargetBtn = document.getElementById('fullscreen-omniretarget-btn');
+    if (fullscreenBaselineMethodBtn) {
+        fullscreenBaselineMethodBtn.addEventListener('click', () => toggleFullscreen('baselineMethod'));
+    }
+    if (fullscreenOmniRetargetBtn) {
+        fullscreenOmniRetargetBtn.addEventListener('click', () => toggleFullscreen('omniretarget'));
+    }
+    if (fullscreenLafanBtn) {
+        fullscreenLafanBtn.addEventListener('click', () => toggleFullscreen('lafan'));
     }
 
     // Add click listeners to pose options
@@ -335,11 +428,71 @@ function initializeBoxAugmentationDemo() {
         });
     });
 
+    // Add click listeners to baseline method options
+    baselineMethodOptions.forEach((option) => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectBaselineMethodOption(option);
+        });
+        option.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectBaselineMethodOption(option);
+        });
+    });
+
+    // Add click listeners to baseline task options
+    baselineTaskOptions.forEach((option) => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectBaselineTaskOption(option);
+        });
+        option.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectBaselineTaskOption(option);
+        });
+    });
+
+    // Add click listeners to omniretarget task options
+    omniretargetTaskOptions.forEach((option) => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectOmniRetargetTaskOption(option);
+        });
+        option.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectOmniRetargetTaskOption(option);
+        });
+    });
+
+    // Add click listeners to lafan options
+    lafanOptions.forEach((option) => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectLafanOption(option);
+        });
+        option.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectLafanOption(option);
+        });
+    });
+
     // Initialize
     selectPoseOption(poseOptions[0]); // Select first option by default
     selectSizeOption(sizeOptions[0]); // Select first option by default
     selectTerrainOption(terrainOptions[2]); // Select "original" terrain by default (index 2)
     selectEmbodimentOption(embodimentOptions[0]); // Select first embodiment by default
+    if (baselineMethodOptions.length > 0) selectBaselineMethodOption(baselineMethodOptions[0]);
+    if (baselineTaskOptions.length > 0) selectBaselineTaskOption(baselineTaskOptions[0]);
+    if (omniretargetTaskOptions.length > 0) selectOmniRetargetTaskOption(omniretargetTaskOptions[0]);
+    if (lafanOptions.length > 0) selectLafanOption(lafanOptions[0]);
 
     function selectPoseOption(selectedOption) {
         // Remove active class from all options
@@ -448,6 +601,40 @@ function initializeBoxAugmentationDemo() {
         
         // Automatically load the demo when an embodiment option is selected
         loadEmbodimentDemo();
+    }
+
+    function selectBaselineMethodOption(selectedOption) {
+        baselineMethodOptions.forEach(option => option.classList.remove('active'));
+        selectedOption.classList.add('active');
+        demoState.currentBaselineMethod = selectedOption.dataset.baselineMethod;
+        addClickEffect(selectedOption);
+        loadBaselineMethodDemo();
+    }
+
+    function selectBaselineTaskOption(selectedOption) {
+        baselineTaskOptions.forEach(option => option.classList.remove('active'));
+        selectedOption.classList.add('active');
+        demoState.currentBaselineTask = selectedOption.dataset.baselineTask;
+        addClickEffect(selectedOption);
+        loadBaselineMethodDemo();
+    }
+
+    function selectOmniRetargetTaskOption(selectedOption) {
+        omniretargetTaskOptions.forEach(option => option.classList.remove('active'));
+        selectedOption.classList.add('active');
+        demoState.currentOmniRetargetTask = selectedOption.dataset.omniretargetTask;
+        addClickEffect(selectedOption);
+        loadOmniRetargetDemo();
+    }
+
+    function selectLafanOption(selectedOption) {
+        lafanOptions.forEach(option => option.classList.remove('active'));
+        selectedOption.classList.add('active');
+        demoState.currentLafan = selectedOption.dataset.lafan;
+        const config = lafanConfigs[selectedOption.dataset.lafan];
+        if (config) lafanDescription.textContent = config.description;
+        addClickEffect(selectedOption);
+        loadLafanDemo();
     }
 
     function loadPoseDemo() {
@@ -613,6 +800,78 @@ function initializeBoxAugmentationDemo() {
         }
     }
 
+    function loadBaselineMethodDemo() {
+        const method = demoState.currentBaselineMethod || 'gmr';
+        const task = demoState.currentBaselineTask || 'box';
+        const selected = `${method}_${task}`;
+        const config = baselineConfigs[selected];
+        if (config && config.html) {
+            const htmlPath = `${filePaths.baseline}${config.html}`;
+            showLoadingIndicator('baselineMethod');
+            baselineMethodIframe.src = '';
+            setTimeout(() => {
+                baselineMethodIframe.src = htmlPath;
+            }, 100);
+            baselineMethodDescription.textContent = config.description;
+            baselineMethodIframe.onload = () => hideLoadingIndicator('baselineMethod');
+            baselineMethodIframe.onerror = () => {
+                hideLoadingIndicator('baselineMethod');
+                console.error('Failed to load baseline method demo:', htmlPath);
+                baselineMethodDescription.textContent = 'Error loading demo. Please try again.';
+            };
+            addLoadingEffect(loadBaselineMethodDemoBtn);
+        } else {
+            console.error('No config found for baseline method:', selected);
+        }
+    }
+
+    function loadOmniRetargetDemo() {
+        const task = demoState.currentOmniRetargetTask || 'box';
+        const selected = `omniretarget_${task}`;
+        const config = baselineConfigs[selected];
+        if (config && config.html) {
+            const htmlPath = `${filePaths.baseline}${config.html}`;
+            showLoadingIndicator('omniretarget');
+            omniretargetIframe.src = '';
+            setTimeout(() => {
+                omniretargetIframe.src = htmlPath;
+            }, 100);
+            omniretargetDescription.textContent = config.description;
+            omniretargetIframe.onload = () => hideLoadingIndicator('omniretarget');
+            omniretargetIframe.onerror = () => {
+                hideLoadingIndicator('omniretarget');
+                console.error('Failed to load omniretarget demo:', htmlPath);
+                omniretargetDescription.textContent = 'Error loading demo. Please try again.';
+            };
+            addLoadingEffect(loadOmniRetargetDemoBtn);
+        } else {
+            console.error('No config found for omniretarget:', selected);
+        }
+    }
+
+    function loadLafanDemo() {
+        const selected = demoState.currentLafan || 'dance1_subject1';
+        const config = lafanConfigs[selected];
+        if (config && config.html) {
+            const htmlPath = `${filePaths.lafan}${config.html}`;
+            showLoadingIndicator('lafan');
+            lafanIframe.src = '';
+            setTimeout(() => {
+                lafanIframe.src = htmlPath;
+            }, 100);
+            lafanDescription.textContent = config.description;
+            lafanIframe.onload = () => hideLoadingIndicator('lafan');
+            lafanIframe.onerror = () => {
+                hideLoadingIndicator('lafan');
+                console.error('Failed to load lafan demo:', htmlPath);
+                lafanDescription.textContent = 'Error loading demo. Please try again.';
+            };
+            addLoadingEffect(loadLafanDemoBtn);
+        } else {
+            console.error('No config found for lafan:', selected);
+        }
+    }
+
     function addClickEffect(element) {
         element.style.transform = 'scale(0.95)';
         setTimeout(() => {
@@ -624,7 +883,10 @@ function initializeBoxAugmentationDemo() {
         const targetIframe = demoType === 'pose' ? poseIframe : 
                            demoType === 'size' ? sizeIframe :
                            demoType === 'terrain' ? terrainIframe :
-                           demoType === 'embodiment' ? embodimentIframe : null;
+                           demoType === 'embodiment' ? embodimentIframe :
+                           demoType === 'baselineMethod' ? baselineMethodIframe :
+                           demoType === 'omniretarget' ? omniretargetIframe :
+                           demoType === 'lafan' ? lafanIframe : null;
         
         if (!demoState.isFullscreen) {
             // Enter fullscreen - target only the iframe
@@ -762,6 +1024,24 @@ function initializeBoxAugmentationDemo() {
                     fullscreenEmbodimentBtn.querySelector('span:last-child').textContent = 'Exit';
                 }
             }
+            if (demoType === 'baselineMethod' || demoType === 'both') {
+                if (fullscreenBaselineMethodBtn) {
+                    fullscreenBaselineMethodBtn.querySelector('i').className = compressIcon;
+                    fullscreenBaselineMethodBtn.querySelector('span:last-child').textContent = 'Exit';
+                }
+            }
+            if (demoType === 'omniretarget' || demoType === 'both') {
+                if (fullscreenOmniRetargetBtn) {
+                    fullscreenOmniRetargetBtn.querySelector('i').className = compressIcon;
+                    fullscreenOmniRetargetBtn.querySelector('span:last-child').textContent = 'Exit';
+                }
+            }
+            if (demoType === 'lafan' || demoType === 'both') {
+                if (fullscreenLafanBtn) {
+                    fullscreenLafanBtn.querySelector('i').className = compressIcon;
+                    fullscreenLafanBtn.querySelector('span:last-child').textContent = 'Exit';
+                }
+            }
             if (fullscreenBtn) {
                 fullscreenBtn.querySelector('i').className = compressIcon;
                 fullscreenBtn.querySelector('span:last-child').textContent = 'Exit Fullscreen';
@@ -783,6 +1063,18 @@ function initializeBoxAugmentationDemo() {
                 fullscreenEmbodimentBtn.querySelector('i').className = expandIcon;
                 fullscreenEmbodimentBtn.querySelector('span:last-child').textContent = 'Fullscreen';
             }
+            if (fullscreenBaselineBoxBtn) {
+                fullscreenBaselineBoxBtn.querySelector('i').className = expandIcon;
+                fullscreenBaselineBoxBtn.querySelector('span:last-child').textContent = 'Fullscreen';
+            }
+            if (fullscreenBaselineClimbBtn) {
+                fullscreenBaselineClimbBtn.querySelector('i').className = expandIcon;
+                fullscreenBaselineClimbBtn.querySelector('span:last-child').textContent = 'Fullscreen';
+            }
+            if (fullscreenLafanBtn) {
+                fullscreenLafanBtn.querySelector('i').className = expandIcon;
+                fullscreenLafanBtn.querySelector('span:last-child').textContent = 'Fullscreen';
+            }
             if (fullscreenBtn) {
                 fullscreenBtn.querySelector('i').className = expandIcon;
                 fullscreenBtn.querySelector('span:last-child').textContent = 'Fullscreen View';
@@ -803,9 +1095,13 @@ function initializeBoxAugmentationDemo() {
         `;
         loadingDiv.style.position = 'relative';
         
-        const targetWrapper = type === 'pose' ? 
-            poseIframe.parentElement : 
-            sizeIframe.parentElement;
+        const targetWrapper = type === 'pose' ? poseIframe.parentElement : 
+            type === 'size' ? sizeIframe.parentElement :
+            type === 'terrain' ? terrainIframe.parentElement :
+            type === 'embodiment' ? embodimentIframe.parentElement :
+            type === 'baselineMethod' ? baselineMethodIframe.parentElement :
+            type === 'omniretarget' ? omniretargetIframe.parentElement :
+            lafanIframe.parentElement;
         targetWrapper.appendChild(loadingDiv);
     }
 
@@ -864,4 +1160,9 @@ function initializeBoxAugmentationDemo() {
 
     // Initialize interactive effects
     addInteractiveEffects();
+}
+
+// Baseline and LAFAN specific logic
+function initializeBaselineAndLafan() {
+    // This function is intentionally left in case we need future separation
 }
