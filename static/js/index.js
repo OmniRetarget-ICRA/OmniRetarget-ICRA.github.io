@@ -86,7 +86,7 @@ function initializeBoxAugmentationDemo() {
     let demoState = {
         currentPose: 'original',
         currentSize: 'original',
-        currentTerrain: 'original', // Single selection like other sections
+        currentTerrain: '1.2', // Default to highest terrain height
         currentEmbodiment: 't1_box',
         currentBaselineMethod: 'gmr',
         currentBaselineTask: 'box',
@@ -181,22 +181,22 @@ function initializeBoxAugmentationDemo() {
         h1_box: {
             html: 'h1_box.html',
             title: 'H1 Robot - Box Task',
-            description: 'Interactive 3D visualization with H1 robot handling box task'
+            description: 'Interactive 3D visualization with H1 robot carrying object'
         },
         h1_climb: {
             html: 'h1_climb.html',
             title: 'H1 Robot - Climbing Task',
-            description: 'Interactive 3D visualization with H1 robot performing climbing'
+            description: 'Interactive 3D visualization with H1 robot climbing'
         },
         t1_box: {
             html: 't1_box.html',
             title: 'T1 Robot - Box Task',
-            description: 'Interactive 3D visualization with T1 robot handling box task'
+            description: 'Interactive 3D visualization with T1 robot carrying object'
         },
         t1_climb: {
             html: 't1_climb.html',
             title: 'T1 Robot - Climbing Task',
-            description: 'Interactive 3D visualization with T1 robot performing climbing'
+            description: 'Interactive 3D visualization with T1 robot climbing'
         }
     };
 
@@ -204,32 +204,26 @@ function initializeBoxAugmentationDemo() {
         gmr_box: {
             html: 'gmr_box.html',
             title: 'GMR - Box',
-            description: 'GMR baseline on box task'
         },
         gmr_climb: {
             html: 'gmr_climb.html',
             title: 'GMR - Climb',
-            description: 'GMR baseline on climb task'
         },
         phc_box: {
             html: 'phc_box.html',
             title: 'PHC - Box',
-            description: 'PHC baseline on box task'
         },
         phc_climb: {
             html: 'phc_climb.html',
             title: 'PHC - Climb',
-            description: 'PHC baseline on climb task'
         },
         omniretarget_box: {
             html: 'omniretarget_box.html',
             title: 'OmniRetarget - Box',
-            description: 'OmniRetarget results on box task'
         },
         omniretarget_climb: {
             html: 'omniretarget_climb.html',
             title: 'OmniRetarget - Climb',
-            description: 'OmniRetarget results on climb task'
         }
     };
 
@@ -280,6 +274,8 @@ function initializeBoxAugmentationDemo() {
     const embodimentDescription = document.getElementById('embodiment-description');
     const baselineMethodDescription = document.getElementById('baseline-method-description');
     const omniretargetDescription = document.getElementById('omniretarget-description');
+    const baselineMethodTitle = document.getElementById('baseline-method-title');
+    const omniretargetTitle = document.getElementById('omniretarget-title');
     const lafanDescription = document.getElementById('lafan-description');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
     const fullscreenPoseBtn = document.getElementById('fullscreen-pose-btn');
@@ -337,7 +333,10 @@ function initializeBoxAugmentationDemo() {
         loadEmbodimentDemoBtn.addEventListener('click', loadEmbodimentDemo);
     }
     if (loadBaselineMethodDemoBtn) {
-        loadBaselineMethodDemoBtn.addEventListener('click', loadBaselineMethodDemo);
+        loadBaselineMethodDemoBtn.addEventListener('click', () => {
+            loadBaselineMethodDemo();
+            loadOmniRetargetDemo();
+        });
     }
     if (loadLafanDemoBtn) {
         loadLafanDemoBtn.addEventListener('click', loadLafanDemo);
@@ -487,7 +486,7 @@ function initializeBoxAugmentationDemo() {
     // Initialize
     selectPoseOption(poseOptions[0]); // Select first option by default
     selectSizeOption(sizeOptions[0]); // Select first option by default
-    selectTerrainOption(terrainOptions[2]); // Select "original" terrain by default (index 2)
+    selectTerrainOption(terrainOptions[4]); // Select "1.2" terrain by default (index 4)
     selectEmbodimentOption(embodimentOptions[0]); // Select first embodiment by default
     if (baselineMethodOptions.length > 0) selectBaselineMethodOption(baselineMethodOptions[0]);
     if (baselineTaskOptions.length > 0) selectBaselineTaskOption(baselineTaskOptions[0]);
@@ -816,6 +815,7 @@ function initializeBoxAugmentationDemo() {
                 baselineMethodIframe.src = htmlPath;
             }, 100);
             baselineMethodDescription.textContent = config.description;
+            updateBaselineTitles();
             baselineMethodIframe.onload = () => hideLoadingIndicator('baselineMethod');
             baselineMethodIframe.onerror = () => {
                 hideLoadingIndicator('baselineMethod');
@@ -840,6 +840,7 @@ function initializeBoxAugmentationDemo() {
                 omniretargetIframe.src = htmlPath;
             }, 100);
             omniretargetDescription.textContent = config.description;
+            updateBaselineTitles();
             omniretargetIframe.onload = () => hideLoadingIndicator('omniretarget');
             omniretargetIframe.onerror = () => {
                 hideLoadingIndicator('omniretarget');
@@ -851,6 +852,18 @@ function initializeBoxAugmentationDemo() {
             }
         } else {
             console.error('No config found for omniretarget:', selected);
+        }
+    }
+
+    function updateBaselineTitles() {
+        const method = (demoState.currentBaselineMethod || 'gmr').toUpperCase();
+        const task = demoState.currentBaselineTask || 'box';
+        const taskLabel = task === 'box' ? 'Object Carrying' : 'Climbing';
+        if (baselineMethodTitle) {
+            baselineMethodTitle.innerHTML = `<i class="fas fa-brain" style="margin-right: 0.5rem;"></i> ${method} - ${taskLabel}`;
+        }
+        if (omniretargetTitle) {
+            omniretargetTitle.innerHTML = `<i class="fas fa-check" style="margin-right: 0.5rem;"></i> OmniRetarget - ${taskLabel}`;
         }
     }
 

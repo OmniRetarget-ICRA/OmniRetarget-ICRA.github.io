@@ -440,6 +440,17 @@ body {
   color: white;
 }
 
+/* Terrain section filled primary button (purple) */
+.button.is-primary {
+  background-color: #8e44ad;
+  border-color: #8e44ad;
+}
+
+.button.is-primary:hover {
+  background-color: #7d3c98;
+  border-color: #7d3c98;
+}
+
 .button.is-warning.is-outlined {
   color: #e67e22;
   border-color: #e67e22;
