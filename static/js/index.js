@@ -105,12 +105,12 @@ function initializeBoxAugmentationDemo() {
             description: 'Interactive 3D visualization with original object placement'
         },
         rot45cw: {
-            html: 'sub3_largebox_003_rot_0.html',
+            html: 'sub3_largebox_003_rot_1.html',
             title: 'Rotated 45° Clockwise',
             description: 'Interactive 3D visualization with object rotated 45 degrees clockwise'
         },
         rot45ccw: {
-            html: 'sub3_largebox_003_rot_1.html',
+            html: 'sub3_largebox_003_rot_0.html',
             title: 'Rotated 45° Counter-Clockwise',
             description: 'Interactive 3D visualization with object rotated 45 degrees counter-clockwise'
         },
@@ -483,9 +483,11 @@ function initializeBoxAugmentationDemo() {
         });
     });
 
-    // Initialize
-    selectPoseOption(poseOptions[0]); // Select first option by default
-    selectSizeOption(sizeOptions[0]); // Select first option by default
+    // Initialize with desired defaults
+    const defaultPoseOption = Array.from(poseOptions).find(o => o.dataset.pose === 'rot45ccw') || poseOptions[0];
+    selectPoseOption(defaultPoseOption);
+    const defaultSizeOption = Array.from(sizeOptions).find(o => o.dataset.size === 'small') || sizeOptions[0];
+    selectSizeOption(defaultSizeOption);
     selectTerrainOption(terrainOptions[4]); // Select "1.2" terrain by default (index 4)
     selectEmbodimentOption(embodimentOptions[0]); // Select first embodiment by default
     if (baselineMethodOptions.length > 0) selectBaselineMethodOption(baselineMethodOptions[0]);
