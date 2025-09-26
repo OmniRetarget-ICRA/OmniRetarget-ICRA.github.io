@@ -234,7 +234,7 @@ function initializeBoxAugmentationDemo() {
             description: 'LAFAN1 sequence: Dance 1, Subject 1'
         },
         ground1_subject4: {
-            html: 'ground1_subject4..html',
+            html: 'ground1_subject4.html',
             title: 'Ground 1 - Subject 4',
             description: 'LAFAN1 sequence: Ground 1, Subject 4'
         },
